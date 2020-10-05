@@ -1,0 +1,319 @@
+原文地址:https://www.cnblogs.com/pjfmeng/p/7688172.html
+resultType是sql映射文件中定义返回值类型，返回值有基本类型，对象类型，List类型，Map类型等。现总结一下再解释
+总结：
+resultType:
+
+1、基本类型  ：resultType=基本类型
+
+2、List类型：   resultType=List中元素的类型
+
+3、Map类型    单条记录：resultType =map
+
+                          多条记录：resultType =Map中value的类型
+
+1、对象类型
+对于对象类型resultType直接写对象的全类名就可以了
+
+实例：
+
+hotelMapper接口
+
+复制代码
+package com.pjf.mybatis.dao;
+
+import com.pjf.mybatis.po.Hotel;
+
+public interface HotelMapper {
+    //返回值类型为Hotel
+    public Hotel getHotel(Integer i);
+
+}
+复制代码
+HotelMapper.xml
+
+复制代码
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.pjf.mybatis.dao.HotelMapper">
+    <!--resultType直接写对象的全类名 -->
+    <select id="getHotel" resultType="com.pjf.mybatis.po.Hotel">
+        select * from hotel
+        where
+        id=#{id}
+    </select>
+</mapper>
+复制代码
+测试类：
+
+复制代码
+package com.pjf.mybatis;
+
+import java.io.IOException;
+import java.io.InputStream;import org.apache.ibatis.io.Resources;
+import org.apache.ibatis.session.SqlSession;
+import org.apache.ibatis.session.SqlSessionFactory;
+import org.apache.ibatis.session.SqlSessionFactoryBuilder;
+import org.junit.Test;
+
+import com.pjf.mybatis.dao.HotelMapper;
+import com.pjf.mybatis.po.Hotel;
+
+public class TestHotel {
+
+    public SqlSessionFactory sqlSessionFactory() throws IOException {
+        // mybatis的配置文件
+        String resource = "mybatis_config.xml";
+        // 使用类加载器加载mybatis的配置文件（它也加载关联的映射文件）TestHotel.class.getClassLoader()
+        InputStream is = Resources.getResourceAsStream(resource);
+        // 构建sqlSession的工厂
+        SqlSessionFactory sessionFactory = new SqlSessionFactoryBuilder().build(is);
+        return sessionFactory;
+    }
+    // 查
+    @Test
+    public void getHotel() throws IOException {
+
+        SqlSessionFactory sessionFactory = sqlSessionFactory();
+        SqlSession session = sessionFactory.openSession();
+        HotelMapper hotelMapper = session.getMapper(HotelMapper.class);
+        System.out.println(hotelMapper.getClass());
+        //直接返回Hotel对象，打印出来        
+        Hotel hotel = hotelMapper.getHotel(1001);
+        System.out.println(hotel);
+        session.close();
+    }
+
+}
+复制代码
+2、List类型
+返回值为List类型，resultType为List中对象的类型，如List<Hotel>，resultType为Hotel
+
+实例：
+
+hotelMapper接口
+
+复制代码
+package com.pjf.mybatis.dao;
+
+import java.util.List;
+
+import com.pjf.mybatis.po.Hotel;
+
+public interface HotelMapper {
+    // 返回值为List
+    public List<Hotel> getHotel(Integer i);
+}
+复制代码
+hotelMapper.xml
+
+复制代码
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.pjf.mybatis.dao.HotelMapper">
+    <!-- 返回值为List，resultType为List中元素的全类名 -->
+    <select id="getHotel" resultType="com.pjf.mybatis.po.Hotel">
+        select * from hotel
+        where
+        price>#{price}
+    </select>
+</mapper>
+复制代码
+测试类
+
+复制代码
+package com.pjf.mybatis;
+
+import java.io.IOException;
+import java.io.InputStream;
+
+import org.apache.ibatis.io.Resources;
+import org.apache.ibatis.session.SqlSession;
+import org.apache.ibatis.session.SqlSessionFactory;
+import org.apache.ibatis.session.SqlSessionFactoryBuilder;
+import org.junit.Test;
+
+import com.pjf.mybatis.dao.HotelMapper;
+import com.pjf.mybatis.po.Hotel;
+
+public class TestHotel {
+
+    public SqlSessionFactory sqlSessionFactory() throws IOException {
+        // mybatis的配置文件
+        String resource = "mybatis_config.xml";
+        // 使用类加载器加载mybatis的配置文件（它也加载关联的映射文件）TestHotel.class.getClassLoader()
+        InputStream is = Resources.getResourceAsStream(resource);
+        // 构建sqlSession的工厂
+        SqlSessionFactory sessionFactory = new SqlSessionFactoryBuilder().build(is);
+        return sessionFactory;
+    }
+
+    // 查
+    @Test
+    public void getHotel() throws IOException {
+
+        SqlSessionFactory sessionFactory = sqlSessionFactory();
+        SqlSession session = sessionFactory.openSession();
+        HotelMapper hotelMapper = session.getMapper(HotelMapper.class);
+        System.out.println(hotelMapper.getClass());
+        // 返回值为List
+        List<Hotel> list = hotelMapper.getHotel(1000);
+        for (Hotel hotel : list) {
+            System.out.println(hotel);
+        }
+        session.close();
+    }
+}
+复制代码
+3、Map类型
+a、返回单条记录的map，key为属性，值为属性值。resultType为map
+hotelMapper接口
+
+复制代码
+package com.pjf.mybatis.dao;
+
+import java.util.Map;
+import com.pjf.mybatis.po.Hotel;
+
+public interface HotelMapper {
+    // 返回值为Map，key为属性名，value为属性值
+    public Map<String, Object> getHotel(Integer i);
+}
+复制代码
+hotelMapper.xml
+
+复制代码
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.pjf.mybatis.dao.HotelMapper">
+    <!-- 返回值为map，resultType为map -->
+    <select id="getHotel" resultType="map">
+        select * from hotel
+        where
+        id=#{id}
+    </select>
+</mapper>
+复制代码
+测试类，返回id=1001的酒店
+
+复制代码
+package com.pjf.mybatis;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Map;
+
+import org.apache.ibatis.io.Resources;
+import org.apache.ibatis.session.SqlSession;
+import org.apache.ibatis.session.SqlSessionFactory;
+import org.apache.ibatis.session.SqlSessionFactoryBuilder;
+import org.junit.Test;
+
+import com.pjf.mybatis.dao.HotelMapper;
+import com.pjf.mybatis.po.Hotel;
+
+public class TestHotel {
+
+    public SqlSessionFactory sqlSessionFactory() throws IOException {
+        // mybatis的配置文件
+        String resource = "mybatis_config.xml";
+        // 使用类加载器加载mybatis的配置文件（它也加载关联的映射文件）TestHotel.class.getClassLoader()
+        InputStream is = Resources.getResourceAsStream(resource);
+        // 构建sqlSession的工厂
+        SqlSessionFactory sessionFactory = new SqlSessionFactoryBuilder().build(is);
+        return sessionFactory;
+    }
+
+    // 查
+    @Test
+    public void getHotel() throws IOException {
+
+        SqlSessionFactory sessionFactory = sqlSessionFactory();
+        SqlSession session = sessionFactory.openSession();
+        HotelMapper hotelMapper = session.getMapper(HotelMapper.class);
+        System.out.println(hotelMapper.getClass());
+        // 返回值为map
+        Map<String, Object> map = hotelMapper.getHotel(1001);
+        System.out.println(map);
+        session.close();
+    }
+}
+复制代码
+b、返回多条记录的map，key为任意一属性，值为对象类型。如Map<String,Hotel>,resultType为Hotel
+返回多条记录的map时，key为任意一属性，值为对象类型，不过key需要通过@MapKey("hotelName")指定对象中一个属性名为key
+
+实例：
+
+hotelMapper接口
+
+复制代码
+package com.pjf.mybatis.dao;
+
+import java.util.Map;
+import org.apache.ibatis.annotations.MapKey;
+
+import com.pjf.mybatis.po.Hotel;
+
+public interface HotelMapper {
+    // 返回值为Map，key需要通过@MapKey("属性名")来指定javaBean中的一个属性名为key，value为对象
+    @MapKey("hotelName")
+    public Map<String, Hotel> getHotel(Integer i);
+}
+复制代码
+hotelMapper.xml文件
+
+复制代码
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.pjf.mybatis.dao.HotelMapper">
+    <!-- 返回值为map，resultType为对象的全类名 -->
+    <select id="getHotel" resultType="com.pjf.mybatis.po.Hotel">
+        select * from hotel
+        where
+        price>#{price}
+    </select>
+</mapper>
+复制代码
+测试类：返回价格>1000以上的酒店
+
+复制代码
+package com.pjf.mybatis;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Map;
+
+import org.apache.ibatis.io.Resources;
+import org.apache.ibatis.session.SqlSession;
+import org.apache.ibatis.session.SqlSessionFactory;
+import org.apache.ibatis.session.SqlSessionFactoryBuilder;
+import org.junit.Test;
+
+import com.pjf.mybatis.dao.HotelMapper;
+import com.pjf.mybatis.po.Hotel;
+
+public class TestHotel {
+
+    public SqlSessionFactory sqlSessionFactory() throws IOException {
+        // mybatis的配置文件
+        String resource = "mybatis_config.xml";
+        // 使用类加载器加载mybatis的配置文件（它也加载关联的映射文件）TestHotel.class.getClassLoader()
+        InputStream is = Resources.getResourceAsStream(resource);
+        // 构建sqlSession的工厂
+        SqlSessionFactory sessionFactory = new SqlSessionFactoryBuilder().build(is);
+        return sessionFactory;
+    }
+
+    // 查
+    @Test
+    public void getHotel() throws IOException {
+
+        SqlSessionFactory sessionFactory = sqlSessionFactory();
+        SqlSession session = sessionFactory.openSession();
+        HotelMapper hotelMapper = session.getMapper(HotelMapper.class);
+        System.out.println(hotelMapper.getClass());
+        // 返回值为map
+        Map<String, Hotel> map = hotelMapper.getHotel(1000);
+        System.out.println(map);
+        session.close();
+    }
+}
