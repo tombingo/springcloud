@@ -1,0 +1,15 @@
+https://blog.csdn.net/daidai_min/article/details/107121692
+nacos使用越来越普遍，今天就梳理一下nacos在windows环境下的安装部署，方便自己后续使用，也跟大家一起学习学习，有错误的地方，麻烦各位大佬指出哈~
+1、下载
+（1）下载地址：https://github.com/alibaba/nacos/releases
+（2）说明：可根据自己的需要下载对应的版本，我这边是下载了1.2.1版本，从官网下载太慢，可以直接下载这个
+链接：https://pan.baidu.com/s/11feU1I1z8A3JkE55UnWE2w
+提取码：fvwz
+在这里插入图片描述
+2、windows版本安装
+（1）下载之后，直接解压
+（2）进入conf/目录，如：G:\tools\nacos\conf 目录下，找到application.properties文件，可以进行修改nacos服务的端口，以及可以配置数据库连接，进行数据持久化，如下图在这里插入图片描述
+（3）进入/bin目录，如：G:\tools\nacos\bin，直接双击startup.cmd文件启动，以下是启动成功后截图
+在这里插入图片描述
+（4）浏览器访问：http://localhost:8848/nacos，然后登录一下，账号密码默认是：nacos,nacos，如果成功访问，则是部署成功
+在这里插入图片描述
