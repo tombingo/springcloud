@@ -1,0 +1,5 @@
+关闭上下文聚合收敛，用于支持调用链路限流，其它不受影响spring.cloud.sentinel.web-context-unify=false
+ContextUtil.enter(contextName,orgin)
+两个概念：
+contextName：上下文，对于调用链来说，命名为资源名称。
+orgin：在调用链首段进行设置，继承RequestOriginParser实现parseOrigin。针对整条调用链，origin相同
